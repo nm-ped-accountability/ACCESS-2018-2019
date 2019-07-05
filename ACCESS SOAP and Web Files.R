@@ -46,3 +46,6 @@ range(dat$stid)
 
 # last
 dat$last <- dat$S_LASTNAME
+
+# first
+dat$first <- dat$S_FIRSTNAME
