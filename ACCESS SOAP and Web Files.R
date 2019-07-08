@@ -50,3 +50,15 @@ dat$last <- dat$S_LASTNAME
 
 # first
 dat$first <- dat$S_FIRSTNAME
+
+# mi
+dat$mi <- dat$S_MIDDLE_NAME
+dat$mi <- toupper(dat$mi)
+table(dat$mi)
+dat$mi <- gsub("-", "", dat$mi)
+dat$mi <- gsub("'", "", dat$mi)
+dat$mi <- gsub("\\$", "", dat$mi)
+dat$mi <- gsub("\\.", "", dat$mi)
+dat$mi <- gsub("0", "", dat$mi)
+dat$mi <- gsub("NULL", "", dat$mi)
+table(dat$mi)
