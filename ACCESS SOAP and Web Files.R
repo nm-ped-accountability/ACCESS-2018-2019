@@ -18,6 +18,7 @@ dat <- raw
 
 schools <- read.csv("Master Schools 2019 V3.csv", 
                     header = TRUE, stringsAsFactors = FALSE)
+schools <- schools[schools$ï..SY == 2019, ]
 
 ################################################################################
 ## recode variables
