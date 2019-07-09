@@ -159,4 +159,22 @@ dat$subtest <- "ACCESS"
 dat$testlang <- "E"
 
 # accommodation
-dat$accommodation
+table(dat$BR...Accommodation)
+dat$accommodation[dat$BR...Accommodation == "Y"] <- 1 #Braille, values of C(contracted) and U(uncontracted) are also possible
+dat$accommodation[dat$EM...Accommodation == "Y"] <- 1 #extended testing of a test domain over multiple days
+dat$accommodation[dat$ES...Accommodation == "Y"] <- 1 #extended speaking test response time
+dat$accommodation[dat$ET...Accommodation == "Y"] <- 1 #extended testing time within the school day
+dat$accommodation[dat$HI...Accommodation == "Y"] <- 1 #human reader for items
+dat$accommodation[dat$HR...Accommodation == "Y"] <- 1 #human reader for response options
+dat$accommodation[dat$LP...Accommodation == "Y"] <- 1 #large print
+dat$accommodation[dat$MC...Accommodation == "Y"] <- 1 #manual control of item audio
+dat$accommodation[dat$NS...Accommodation == "Y"] <- 1 #test may be administered in a non-school setting
+dat$accommodation[dat$RA...Accommodation == "Y"] <- 1 #repeate item audio
+dat$accommodation[dat$RD...Accommodation == "Y"] <- 1 #student responds using a recording device, which is played back and transcribed by the student
+dat$accommodation[dat$RI...Accommodation == "Y"] <- 1 #human reader for repeat of items
+dat$accommodation[dat$RR...Accommodation == "Y"] <- 1 #human reader for repeat of response options
+dat$accommodation[dat$SD...Accommodation == "Y"] <- 1 #interpreter signs test directions in ASL
+dat$accommodation[dat$SR...Accommodation == "Y"] <- 1 #scribe
+dat$accommodation[dat$WD...Accommodation == "Y"] <- 1 #word processor
+dat$accommodation[is.na(dat$accommodation)] <- 0
+table(dat$accommodation)
