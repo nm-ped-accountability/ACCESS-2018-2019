@@ -15,6 +15,8 @@ library(tidyverse)
 raw <- read.csv("ADDED DEMO NM_Summative_StudRR_File_2019-07_05.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
+nrow(dat)
+# 2019: 51179
 
 schools <- read.csv("Master Schools 2019 V3.csv", 
                     header = TRUE, stringsAsFactors = FALSE)
@@ -108,6 +110,14 @@ dat$swd[dat$swd == "Y"] <- "Students with Disabilities"
 dat$swd[dat$swd == "N"] <- "Non SWD"
 table(dat$swd)
 
+# plan 504
+dat$plan504 <- dat$S_PLAN504
+table(dat$plan504)
+dat$plan504 <- gsub("Yes", "Plan 504", dat$plan504)
+dat$plan504 <- gsub("No", "Not Plan 504", dat$plan504)
+dat$plan504 <- gsub("NULL", "Not Plan 504", dat$plan504)
+table(dat$plan504)
+
 # frl
 table(dat$S_FRLP)
 dat$frl[dat$S_FRLP == "F"] <- "Economically Disadvantaged"
@@ -178,3 +188,126 @@ dat$accommodation[dat$SR...Accommodation == "Y"] <- 1 #scribe
 dat$accommodation[dat$WD...Accommodation == "Y"] <- 1 #word processor
 dat$accommodation[is.na(dat$accommodation)] <- 0
 table(dat$accommodation)
+
+# cbt
+table(dat$Mode.of.Administration...Listening)
+dat$cbt_listen <- dat$Mode.of.Administration...Listening
+table(dat$Mode.of.Administration...Reading)
+dat$cbt_read <- dat$Mode.of.Administration...Reading
+table(dat$Mode.of.Administration...Speaking)
+dat$cbt_speak <- dat$Mode.of.Administration...Speaking
+table(dat$Mode.of.Administration...Writing)
+dat$cbt_write <- dat$Mode.of.Administration...Writing
+
+# testbookid
+dat$testbookid <- dat$Unique.DRC.Student.ID
+
+# SS
+dat$SS_listen <- dat$Listening.Scale.Score
+dat$SS_read <- dat$Reading.Scale.Score
+dat$SS_speak <- dat$Speaking.Scale.Score
+dat$SS_write <- dat$Writing.Scale.Score
+dat$SS_comprehension <- dat$Comprehension.Scale.Score
+dat$SS_oral <- dat$Oral.Scale.Score
+dat$SS_literacy <- dat$Literacy.Scale.Score
+dat$SS_composite <- dat$Composite..Overall..Scale.Score
+range(dat$SS_listen, na.rm = TRUE)
+range(dat$SS_read, na.rm = TRUE)
+range(dat$SS_speak, na.rm = TRUE)
+range(dat$SS_write, na.rm = TRUE)
+range(dat$SS_comprehension, na.rm = TRUE)
+range(dat$SS_oral, na.rm = TRUE)
+range(dat$SS_literacy, na.rm = TRUE)
+range(dat$SS_composite, na.rm = TRUE)
+
+# PL
+dat$PL_listen <- dat$Listening.Proficiency.Level
+dat$PL_read <- dat$Reading.Proficiency.Level
+dat$PL_speak <- dat$Speaking.Proficiency.Level
+dat$PL_write <- dat$Writing.Proficiency.Level
+dat$PL_comprehension <- dat$Comprehension.Proficiency.Level
+dat$PL_oral <- dat$Oral.Proficiency.Level
+dat$PL_literacy <- dat$Literacy.Proficiency.Level
+dat$PL_composite <- dat$Composite..Overall..Proficiency.Level
+range(dat$PL_listen, na.rm = TRUE)
+range(dat$PL_read, na.rm = TRUE)
+range(dat$PL_speak, na.rm = TRUE)
+range(dat$PL_write, na.rm = TRUE)
+range(dat$PL_comprehension, na.rm = TRUE)
+range(dat$PL_oral, na.rm = TRUE)
+range(dat$PL_listen, na.rm = TRUE)
+range(dat$PL_composite, na.rm = TRUE)
+
+# proficient
+dat$proficient[dat$PL_composite >= 5.0] <- 1
+dat$proficient[is.na(dat$proficient)] <- 0
+table(dat$proficient)
+
+# valid
+# listening
+dat$valid_listen <- 1
+dat$valid_listen[dat$Do.Not.Score.Code...Listening == "ABS"] <- 0 #absent
+dat$valid_listen[dat$Do.Not.Score.Code...Listening == "INV"] <- 0 #invalid
+dat$valid_listen[dat$Do.Not.Score.Code...Listening == "DEC"] <- 0 #declined
+dat$valid_listen[dat$Do.Not.Score.Code...Listening == "SPD"] <- 2 #deferred special ed/504
+table(dat$Do.Not.Score.Code...Listening)
+table(dat$valid_listen) 
+# 2019: 123
+sum(is.na(dat$SS_listen)) 
+# 2019: 151
+dat[dat$valid_listen == 1 & is.na(dat$SS_listen), ]
+dat[dat$valid_listen == 0 & !is.na(dat$SS_listen), ] #none
+
+# reading
+dat$valid_read <- 1
+dat$valid_read[dat$Do.Not.Score.Code...Reading == "ABS"] <- 0
+dat$valid_read[dat$Do.Not.Score.Code...Reading == "INV"] <- 0
+dat$valid_read[dat$Do.Not.Score.Code...Reading == "DEC"] <- 0
+dat$valid_read[dat$Do.Not.Score.Code...Reading == "SPD"] <- 2
+table(dat$Do.Not.Score.Code...Reading)
+table(dat$valid_read)
+# 2019: 114
+sum(is.na(dat$SS_read))
+# 2019: 206
+dat[dat$valid_read == 1 & is.na(dat$SS_read), ]
+dat[dat$valid_read == 0 & !is.na(dat$SS_read), ] #none
+
+# speaking
+dat$valid_speak <- 1
+dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "ABS"] <- 0
+dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "INV"] <- 0
+dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "DEC"] <- 0
+dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "SPD"] <- 2
+table(dat$Do.Not.Score.Code...Speaking)
+table(dat$valid_speak)
+# 2019: 159
+sum(is.na(dat$SS_speak))
+# 2019: 703
+dat[dat$valid_speak == 1 & is.na(dat$SS_speak), ]
+dat[dat$valid_speak == 0 & !is.na(dat$SS_speak), ] #none
+
+# writing
+dat$valid_write <- 1
+dat$valid_write[dat$Do.Not.Score.Code...Writing == "ABS"] <- 0
+dat$valid_write[dat$Do.Not.Score.Code...Writing == "INV"] <- 0
+dat$valid_write[dat$Do.Not.Score.Code...Writing == "DEC"] <- 0
+dat$valid_write[dat$Do.Not.Score.Code...Writing == "SPD"] <- 2
+table(dat$Do.Not.Score.Code...Writing)
+table(dat$valid_write)
+# 2019: 118
+sum(is.na(dat$SS_write))
+# 2019: 675
+dat[dat$valid_write == 1 & is.na(dat$SS_write), ]
+dat[dat$valid_write == 0 & !is.na(dat$SS_write), ] #none
+
+# snapshot date
+dat$status <- dat$STATUS
+table(dat$status)
+# 2019: 2 records from 2017
+dat[dat$status == 2017, ]
+# consistent with STARS searches
+
+################################################################################
+## remove invalid records and save file
+
+
