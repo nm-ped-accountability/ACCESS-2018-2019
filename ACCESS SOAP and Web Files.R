@@ -529,10 +529,18 @@ web <- all[c("schnumb", "DistrictCode", "DistrictName",
              "Level12", "Level34", "Level56",
              "SORTCODE", "SORT")]
 
-# remove school-level rates
-web <- web[web$SchoolName == "All Students" | web$SchoolName == "Districtwide", ]
+# remove state charters' district-level rates
+# remove non-state charter schools' school-level rates
+# remove subgroup rates
+web <- web %>%
+    filter(SORTCODE == 1) %>%
+    filter(!(DistrictName == "State Charter" & SchoolName == "Districtwide")) %>%
+    filter((SchoolName %in% c("Districtwide", "All Students")) | 
+               DistrictName == "State Charter") %>%
+    filter(SchoolCode != 998) #homebound
+web$SORTCODE <- NULL
 nrow(web)
-# 2019: 2012
+# 2019: 128
 
 # round to integers
 head(web)
@@ -543,7 +551,7 @@ head(web)
 
 # check totals
 web$total <- rowSums(web[, c("Level12", "Level34", "Level56")])
-range(web$total) #98-101
+range(web$total) #99-101
 web$total <- NULL
 
 
@@ -554,14 +562,7 @@ web$total <- NULL
 nrow(web) 
 web <- web[web$NStudents >= 10, ]
 nrow(web)
-# 2019: 8350
-
-# select "All Students"
-web <- web[web$SORTCODE == 1, ]
-web$SORTCODE <-  NULL
-web <- web[!is.na(web$schnumb), ]
-nrow(web)
-# 2019: 707
+# 2019: 105
 
 mask <- function(dataset, level) {
     masked <- data.frame()
