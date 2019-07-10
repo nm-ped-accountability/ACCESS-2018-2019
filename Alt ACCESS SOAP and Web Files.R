@@ -258,6 +258,7 @@ range(dat$SS_comprehension, na.rm = TRUE)
 range(dat$SS_oral, na.rm = TRUE)
 range(dat$SS_literacy, na.rm = TRUE)
 range(dat$SS_composite, na.rm = TRUE)
+table(dat$Unique.DRC.Student.ID)
 
 # PL
 dat$PL_listen <- dat$Listening.Proficiency.Level
