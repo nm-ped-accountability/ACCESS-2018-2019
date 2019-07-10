@@ -482,8 +482,6 @@ all$SchoolName[all$SORT == 2] <- "Districtwide"
 # check for missing district and school names
 all[is.na(all$DistrictName), ] #none
 all$schnumb[is.na(all$SchoolName)] #none
-# 542001 Mission Achievement and Success 2.0
-all$SchoolName[all$schnumb == 542002] <- "Mission Achievement and Success 2.0"
 
 ################################################################################
 # SOAP file
@@ -501,11 +499,9 @@ nrow(SOAP)
 
 # remove district-level rates for state charter schools
 # except for 542 Mission Achievement and Success, since there are two schools
-SOAP <- SOAP[!(SOAP$DistrictCode > 500 & 
-                   SOAP$DistrictCode != 542 & 
-                   SOAP$SchoolName == "Districtwide"), ]
+SOAP <- SOAP[!(SOAP$DistrictCode > 500 & SOAP$SchoolName == "Districtwide"), ]
 nrow(SOAP)
-# 2019: 7094
+# 2019: 7075
 
 # round to one digit
 head(SOAP)
@@ -534,9 +530,7 @@ web <- all[c("schnumb", "DistrictCode", "DistrictName",
              "SORTCODE", "SORT")]
 
 # remove district-level rates for state charter schools
-web <- web[!(web$DistrictCode > 500 &
-                 web$DistrictCode != 542 & 
-                 web$SchoolName == "Districtwide"), ]
+web <- web[!(web$DistrictCode > 500 & web$SchoolName == "Districtwide"), ]
 
 # round to integers
 head(web)
@@ -685,11 +679,6 @@ head(webfile)
 
 final <- webfile[c("schnumb", "DistrictName", "SchoolName", 
                    "PL12", "PL34", "PL56")]
-head(final)
-
-# renames columns
-names(final) <- c("Code", "District", "School", "Grade", 
-                  "Level 1 (%)", "Level 2 (%)", "Level 3 (%)", "Level 4 (%)")
 head(final)
 
 # save output
