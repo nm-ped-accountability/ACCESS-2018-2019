@@ -12,7 +12,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("ADDED DEMO NM_Summative_StudRR_File_2019-07_05.csv",
+raw <- read.csv("ADDED DEMO NM_Summative_StudRR_File_2019-07_10.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat)
@@ -189,15 +189,15 @@ dat$accommodation[dat$WD...Accommodation == "Y"] <- 1 #word processor
 dat$accommodation[is.na(dat$accommodation)] <- 0
 table(dat$accommodation)
 
-# cbt
+# mode
 table(dat$Mode.of.Administration...Listening)
-dat$cbt_listen <- dat$Mode.of.Administration...Listening
+dat$mode_listen <- dat$Mode.of.Administration...Listening
 table(dat$Mode.of.Administration...Reading)
-dat$cbt_read <- dat$Mode.of.Administration...Reading
+dat$mode_read <- dat$Mode.of.Administration...Reading
 table(dat$Mode.of.Administration...Speaking)
-dat$cbt_speak <- dat$Mode.of.Administration...Speaking
+dat$mode_speak <- dat$Mode.of.Administration...Speaking
 table(dat$Mode.of.Administration...Writing)
-dat$cbt_write <- dat$Mode.of.Administration...Writing
+dat$mode_write <- dat$Mode.of.Administration...Writing
 
 # testbookid
 dat$testbookid <- dat$Unique.DRC.Student.ID
@@ -308,6 +308,395 @@ dat[dat$status == 2017, ]
 # consistent with STARS searches
 
 ################################################################################
-## remove invalid records and save file
+## process invalid records and save file
+
+# tally missing domains
+dat$missing_listen[is.na(dat$SS_listen)] <- 1
+dat$missing_listen[!is.na(dat$SS_listen)] <- 0
+table(dat$missing_listen)
+# 2019: 151
+dat$missing_read[is.na(dat$SS_read)] <- 1
+dat$missing_read[!is.na(dat$SS_read)] <- 0
+table(dat$missing_read)
+# 2019: 206
+dat$missing_speak[is.na(dat$SS_speak)] <- 1
+dat$missing_speak[!is.na(dat$SS_speak)] <- 0
+table(dat$missing_speak)
+# 2019: 703
+dat$missing_write[is.na(dat$SS_write)] <- 1
+dat$missing_write[!is.na(dat$SS_write)] <- 0
+table(dat$missing_write)
+# 2019: 675
+dat$missing_domains <- rowSums(dat[, c("missing_listen", 
+                                       "missing_read", 
+                                       "missing_speak", 
+                                       "missing_write")])
+table(dat$missing_domains)
+table(dat$missing_domains, dat$plan504)
+table(dat$missing_domains, dat$swd)
+
+# tabulate missing domains and invalidation codes
+table(dat$missing_listen, dat$valid_listen)
+table(dat$missing_listen, dat$accommodation)
+dat$missing_domains[dat$missing_listen == 1 & dat$valid_listen == 2]
+dat$accommodation[dat$missing_listen == 1 & dat$valid_listen == 2]
+# 2019: 7 cases had SPD
+
+table(dat$missing_read, dat$valid_read)
+dat$missing_domains[dat$missing_read == 1 & dat$valid_read == 2]
+# 2019: 0 cases had SPD
+
+table(dat$missing_speak, dat$valid_speak)
+dat$missing_domains[dat$missing_speak == 1 & dat$valid_speak == 2]
+# 2019: 12 cases had SPD
+
+table(dat$missing_write, dat$valid_write)
+dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
+# 2019: 4 cases had SPD
+
+# remove extra columns
+dat <- dat[c(197:258)]
+names(dat)
+
+# save student-level file
+write.csv(dat, "ACCESS for ELLs 2018-2019_Cleaned_07102019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
+nrow(dat) 
+# 2019: 51179
+
+################################################################################
+# remove student who are missing composite scores
+dat <- dat[!is.na(dat$PL_composite), ]
+nrow(dat)
+# 2019: 50209
+
+################################################################################
+### calculate rates for SOAP and web files
+################################################################################
+dat$allstudents <- "All Students"
+dat$statecode <- 999
+
+groups <- c("allstudents", "gender", "eth", "swd", "frl", 
+            "ell", "migrant", "homeless", "military", "foster")
+
+dat$level1[dat$PL_composite >= 1 & dat$PL_composite < 2] <- 1
+dat$level1[is.na(dat$level1)] <- 0
+dat$level2[dat$PL_composite >= 2 & dat$PL_composite < 3] <- 1
+dat$level2[is.na(dat$level2)] <- 0
+dat$level3[dat$PL_composite >= 3 & dat$PL_composite < 4] <- 1
+dat$level3[is.na(dat$level3)] <- 0
+dat$level4[dat$PL_composite >= 4 & dat$PL_composite < 5] <- 1
+dat$level4[is.na(dat$level4)] <- 0
+dat$level5[dat$PL_composite >= 5 & dat$PL_composite < 6] <- 1
+dat$level5[is.na(dat$level5)] <- 0
+dat$level6[dat$PL_composite == 6] <- 1
+dat$level6[is.na(dat$level6)] <- 0
 
 
+rate <- function(dataset, code) {
+    Rates <- data.frame()
+    
+    for (group in groups) {
+        GroupRate <- dataset %>%
+            select(code, group, 
+                   level1, level2, level3, level4, level5, level6, 
+                   proficient) %>%
+            group_by(dataset[[code]], dataset[[group]]) %>%
+            summarise(NStudents = n(),
+                      Level1 = (sum(level1) / NStudents) * 100,
+                      Level2 = (sum(level2) / NStudents) * 100,
+                      Level3 = (sum(level3) / NStudents) * 100,
+                      Level4 = (sum(level4) / NStudents) * 100,
+                      Level5 = (sum(level5) / NStudents) * 100,
+                      Level6 = (sum(level6) / NStudents) * 100,
+                      Level12 = ((sum(level1) + sum(level2)) / NStudents) * 100,
+                      level34 = ((sum(level3) + sum(level4)) / NStudents) * 100,
+                      level56 = ((sum(level5) + sum(level6)) / NStudents) * 100,
+                      ProficiencyRate = (sum(proficient) / NStudents * 100))
+        names(GroupRate) <- c("Code", "Group", "NStudents", 
+                              "Level1", "Level2", "Level3", 
+                              "Level4", "Level5", "Level6",
+                              "Level12", "Level34", "Level56",
+                              "ProficiencyRate")
+        
+        GroupRate <- GroupRate[GroupRate$Code != 999999, ]
+        Rates <- rbind(GroupRate, Rates)
+    }
+    Rates
+}
+
+# state rates
+stateRates <- rate(dat, "statecode")
+stateRates$schnumb <- 999999
+stateRates$DistrictCode <- 999
+stateRates$SchoolCode <- 999
+stateRates$SORT <- 1
+
+# district rates
+districtRates <- rate(dat, "distcode")
+districtRates$schnumb <- districtRates$Code * 1000
+districtRates$DistrictCode <- districtRates$Code
+districtRates$SchoolCode <- 0
+districtRates$SORT <- 2
+
+# school rates
+schoolRates <- rate(dat, "test_schnumb")
+schoolRates$schnumb <- schoolRates$Code
+schoolRates$DistrictCode <- floor(schoolRates$Code / 1000)
+schoolRates$SchoolCode <- schoolRates$Code - (schoolRates$DistrictCode * 1000)
+schoolRates$SORT <- 3
+
+
+################################################################################
+### merging, formatting, masking
+################################################################################
+all <- rbind(stateRates, districtRates, schoolRates)
+
+# sort codes for subgroups
+table(all$Group)
+all$SORTCODE[all$Group == "All Students"] <- 1
+all$SORTCODE[all$Group == "Female"] <- 2
+all$SORTCODE[all$Group == "Male"] <- 3
+all$SORTCODE[all$Group == "Caucasian"] <- 4
+all$SORTCODE[all$Group == "African American"] <- 5
+all$SORTCODE[all$Group == "Hispanic"] <- 6
+all$SORTCODE[all$Group == "Asian"] <- 7
+all$SORTCODE[all$Group == "Native American"] <- 8
+all$SORTCODE[all$Group == "Economically Disadvantaged"] <- 9
+all$SORTCODE[all$Group == "Students with Disabilities"] <- 10
+all$SORTCODE[all$Group == "English Learners"] <- 11
+all$SORTCODE[all$Group == "Migrant"] <- 12
+all$SORTCODE[all$Group == "Homeless"] <- 13
+all$SORTCODE[all$Group == "Military"] <- 14
+all$SORTCODE[all$Group == "Foster Care"] <- 15
+table(all$SORTCODE)
+# ELs will be removed from the files, since all students should be ELs
+
+# add district and school names
+all$DistrictName <- schools$distname[match(all$DistrictCode, schools$distcode)]
+all$SchoolName <- schools$schname[match(all$schnumb, schools$schnumb)]
+all$DistrictName[all$SORT == 1] <- "Statewide"
+all$SchoolName[all$SORT == 1] <- "All Students"
+all$SchoolName[all$SORT == 2] <- "Districtwide"
+
+# check for missing district and school names
+all[is.na(all$DistrictName), ] #none
+all$schnumb[is.na(all$SchoolName)] #none
+# 542001 Mission Achievement and Success 2.0
+all$SchoolName[all$schnumb == 542002] <- "Mission Achievement and Success 2.0"
+
+################################################################################
+# SOAP file
+SOAP <- all[c("schnumb", "DistrictCode", "DistrictName", 
+              "SchoolCode", "SchoolName", "Group", "NStudents",
+              "Level1", "Level2", "Level3", "Level4", "Level5", "Level6",
+              "ProficiencyRate", "SORTCODE", "SORT")]
+
+# remove entries that do not have sortcodes
+SOAP <- SOAP[!is.na(SOAP$SORTCODE), ]
+# remove entries for ELs since all students should be ELs
+SOAP <- SOAP[SOAP$SORTCODE != 11, ]
+nrow(SOAP)
+# 2019: 7446
+
+# remove district-level rates for state charter schools
+# except for 542 Mission Achievement and Success, since there are two schools
+SOAP <- SOAP[!(SOAP$DistrictCode > 500 & 
+                   SOAP$DistrictCode != 542 & 
+                   SOAP$SchoolName == "Districtwide"), ]
+nrow(SOAP)
+# 2019: 7094
+
+# round to one digit
+head(SOAP)
+SOAP$Level1 <- round(SOAP$Level1, digits = 1)
+SOAP$Level2 <- round(SOAP$Level2, digits = 1)
+SOAP$Level3 <- round(SOAP$Level3, digits = 1)
+SOAP$Level4 <- round(SOAP$Level4, digits = 1)
+SOAP$Level5 <- round(SOAP$Level5, digits = 1)
+SOAP$Level6 <- round(SOAP$Level6, digits = 1)
+SOAP$ProficiencyRate <- round(SOAP$ProficiencyRate, digits = 1)
+head(SOAP)
+
+# sorting
+SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE), ]
+SOAP$SORT <- NULL
+SOAP$SORTCODE <- NULL
+
+write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07102019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
+
+################################################################################
+# web file
+web <- all[c("schnumb", "DistrictCode", "DistrictName", 
+             "SchoolCode", "SchoolName", "Group", "NStudents",
+             "Level12", "Level34", "Level56",
+             "SORTCODE", "SORT")]
+
+# remove district-level rates for state charter schools
+web <- web[!(web$DistrictCode > 500 &
+                 web$DistrictCode != 542 & 
+                 web$SchoolName == "Districtwide"), ]
+
+# round to integers
+head(web)
+web$Level12 <- round(web$Level12, digits = 0)
+web$Level34 <- round(web$Level34, digits = 0)
+web$Level56 <- round(web$Level56, digits = 0)
+head(web)
+
+# check totals
+web$total <- rowSums(web[, c("Level12", "Level34", "Level56")])
+range(web$total) #98-101
+web$total <- NULL
+
+
+###############################################
+## masking
+
+# remove records with fewer than 10 students
+nrow(web) 
+web <- web[web$NStudents >= 10, ]
+nrow(web)
+# 2019: 8350
+
+# select "All Students"
+web <- web[web$SORTCODE == 1, ]
+web$SORTCODE <-  NULL
+web <- web[!is.na(web$schnumb), ]
+nrow(web)
+# 2019: 707
+
+mask <- function(dataset, level) {
+    masked <- data.frame()
+    
+    for (row in 1:nrow(dataset)) {
+        row <- dataset[row, ]
+        
+        # N = 301 or higher
+        if (row$NStudents > 300) {
+            row$pct[row[[level]] >= 99] <- "GE 99"
+            row$pct[row[[level]] <= 1] <- "LE 1"
+            row$pct[row[[level]] < 99 & row[[level]] > 1] <- row[[level]]
+        }
+        
+        # N = 201-300
+        else if (row$NStudents > 200 & row$NStudents <= 300) {
+            row$pct[row[[level]] >= 98] <- "GE 98"
+            row$pct[row[[level]] <= 2] <- "LE 2"
+            row$pct[row[[level]] < 98 & row[[level]] > 2] <- row[[level]]
+        }
+        
+        # N = 101-200
+        else if (row$NStudents > 100 & row$NStudents <= 200) {
+            row$pct[row[[level]] < 3] <- "LE 2"
+            row$pct[row[[level]] >= 3 & row[[level]] < 5] <- "3-4"
+            row$pct[row[[level]] >= 5 & row[[level]] < 10] <- "5-9"
+            row$pct[row[[level]] >= 10 & row[[level]] < 15] <- "10-14"
+            row$pct[row[[level]] >= 15 & row[[level]] < 20] <- "15-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 25] <- "20-24"
+            row$pct[row[[level]] >= 25 & row[[level]] < 30] <- "25-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 35] <- "30-34"
+            row$pct[row[[level]] >= 35 & row[[level]] < 40] <- "35-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 45] <- "40-44"
+            row$pct[row[[level]] >= 45 & row[[level]] < 50] <- "45-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 55] <- "50-54"
+            row$pct[row[[level]] >= 55 & row[[level]] < 60] <- "55-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 65] <- "60-64"
+            row$pct[row[[level]] >= 65 & row[[level]] < 70] <- "65-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 75] <- "70-74"
+            row$pct[row[[level]] >= 75 & row[[level]] < 80] <- "75-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 85] <- "80-84"
+            row$pct[row[[level]] >= 85 & row[[level]] < 90] <- "85-89"
+            row$pct[row[[level]] >= 90 & row[[level]] < 95] <- "90-94"
+            row$pct[row[[level]] >= 95 & row[[level]] < 98] <- "95-97"
+            row$pct[row[[level]] >= 98] <- "GE 98"
+        }
+        
+        # N = 41-100
+        else if (row$NStudents > 40 & row$NStudents <= 100) {
+            row$pct[row[[level]] < 6] <- "LE 5"
+            row$pct[row[[level]] >= 6 & row[[level]] < 10] <- "6-9"
+            row$pct[row[[level]] >= 10 & row[[level]] < 15] <- "10-14"
+            row$pct[row[[level]] >= 15 & row[[level]] < 20] <- "15-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 25] <- "20-24"
+            row$pct[row[[level]] >= 25 & row[[level]] < 30] <- "25-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 35] <- "30-34"
+            row$pct[row[[level]] >= 35 & row[[level]] < 40] <- "35-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 45] <- "40-44"
+            row$pct[row[[level]] >= 45 & row[[level]] < 50] <- "45-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 55] <- "50-54"
+            row$pct[row[[level]] >= 55 & row[[level]] < 60] <- "55-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 65] <- "60-64"
+            row$pct[row[[level]] >= 65 & row[[level]] < 70] <- "65-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 75] <- "70-74"
+            row$pct[row[[level]] >= 75 & row[[level]] < 80] <- "75-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 85] <- "80-84"
+            row$pct[row[[level]] >= 85 & row[[level]] < 90] <- "85-89"
+            row$pct[row[[level]] >= 90 & row[[level]] < 95] <- "90-94"
+            row$pct[row[[level]] >= 95] <- "GE 95"
+        }
+        
+        # N = 21-40
+        else if (row$NStudents > 20 & row$NStudents <= 40) {
+            row$pct[row[[level]] < 11] <- "LE 10"
+            row$pct[row[[level]] >= 11 & row[[level]] < 20] <- "11-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 30] <- "20-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 40] <- "30-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 50] <- "40-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 60] <- "50-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 70] <- "60-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "70-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 90] <- "80-89"
+            row$pct[row[[level]] >= 90] <- "GE 90"
+        }
+        
+        # N = 10-20
+        else {
+            row$pct[row[[level]] < 21] <- "LE 20"
+            row$pct[row[[level]] >= 21 & row[[level]] < 30] <- "21-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 40] <- "30-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 50] <- "40-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 60] <- "50-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 70] <- "60-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "79-80"
+            row$pct[row[[level]] >= 80] <- "GE 80"
+        }
+        masked <- rbind(row, masked)    
+    }
+    masked <- masked[order(masked$SORT, masked$schnumb), ]
+}
+
+level12 <- mask(web, "Level12")
+colnames(level12)[12] <- "PL12"
+head(level12)
+
+level34 <- mask(web, "Level34")
+colnames(level34)[12] <- "PL34"
+head(level34)
+
+level56 <- mask(web, "Level56")
+colnames(level56)[12] <- "PL56"
+head(level56)
+
+# merge files
+webfile <- cbind(level12, level34[c(12)], level56[c(12)])
+head(webfile)
+
+final <- webfile[c("schnumb", "DistrictName", "SchoolName", 
+                   "PL12", "PL34", "PL56")]
+head(final)
+
+# renames columns
+names(final) <- c("Code", "District", "School", "Grade", 
+                  "Level 1 (%)", "Level 2 (%)", "Level 3 (%)", "Level 4 (%)")
+head(final)
+
+# save output
+write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07102019.csv",
+          row.names = FALSE)
+
+
+################################################################################
+### the end
+################################################################################
