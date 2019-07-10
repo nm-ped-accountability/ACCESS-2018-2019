@@ -529,8 +529,10 @@ web <- all[c("schnumb", "DistrictCode", "DistrictName",
              "Level12", "Level34", "Level56",
              "SORTCODE", "SORT")]
 
-# remove district-level rates for state charter schools
-web <- web[!(web$DistrictCode > 500 & web$SchoolName == "Districtwide"), ]
+# remove school-level rates
+web <- web[web$SchoolName == "All Students" | web$SchoolName == "Districtwide", ]
+nrow(web)
+# 2019: 2012
 
 # round to integers
 head(web)
