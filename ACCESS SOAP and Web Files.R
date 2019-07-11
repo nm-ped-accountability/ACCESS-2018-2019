@@ -370,6 +370,9 @@ dat <- dat[!is.na(dat$PL_composite), ]
 nrow(dat)
 # 2019: 50209
 
+write.csv(dat, "ACCESS for ELLs 2018-2019 Complete Cases_07112019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
+
 ################################################################################
 ### calculate rates for SOAP and web files
 ################################################################################
