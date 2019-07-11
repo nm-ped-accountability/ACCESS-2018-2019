@@ -246,7 +246,7 @@ dat$SS_listen <- dat$Listening.Scale.Score
 dat$SS_read <- dat$Reading.Scale.Score
 dat$SS_speak <- dat$Speaking.Scale.Score
 dat$SS_write <- dat$Writing.Scale.Score
-dat$SS_comprehension <- dat$Comprehension.Scale.Score
+dat$SS_comprehension <- dat$Comprehension.Score
 dat$SS_oral <- dat$Oral.Scale.Score
 dat$SS_literacy <- dat$Literacy.Scale.Score
 dat$SS_composite <- dat$Composite..Overall..Scale.Score
@@ -258,7 +258,6 @@ range(dat$SS_comprehension, na.rm = TRUE)
 range(dat$SS_oral, na.rm = TRUE)
 range(dat$SS_literacy, na.rm = TRUE)
 range(dat$SS_composite, na.rm = TRUE)
-table(dat$Unique.DRC.Student.ID)
 
 # PL
 dat$PL_listen <- dat$Listening.Proficiency.Level
@@ -269,17 +268,19 @@ dat$PL_comprehension <- dat$Comprehension.Proficiency.Level
 dat$PL_oral <- dat$Oral.Proficiency.Level
 dat$PL_literacy <- dat$Literacy.Proficiency.Level
 dat$PL_composite <- dat$Composite..Overall..Proficiency.Level
-range(dat$PL_listen, na.rm = TRUE)
-range(dat$PL_read, na.rm = TRUE)
-range(dat$PL_speak, na.rm = TRUE)
-range(dat$PL_write, na.rm = TRUE)
-range(dat$PL_comprehension, na.rm = TRUE)
-range(dat$PL_oral, na.rm = TRUE)
-range(dat$PL_listen, na.rm = TRUE)
-range(dat$PL_composite, na.rm = TRUE)
+table(dat$PL_listen)
+table(dat$PL_read)
+table(dat$PL_speak)
+table(dat$PL_write)
+table(dat$PL_comprehension)
+table(dat$PL_oral)
+table(dat$PL_literacy)
+table(dat$PL_composite)
 
 # proficient
-dat$proficient[dat$PL_composite >= 5.0] <- 1
+dat$proficient[dat$PL_composite == "P1" | 
+                   dat$PL_composite == "P2" | 
+                   dat$PL_composite == "P3"] <- 1
 dat$proficient[is.na(dat$proficient)] <- 0
 table(dat$proficient)
 
@@ -292,9 +293,9 @@ dat$valid_listen[dat$Do.Not.Score.Code...Listening == "DEC"] <- 0 #declined
 dat$valid_listen[dat$Do.Not.Score.Code...Listening == "SPD"] <- 2 #deferred special ed/504
 table(dat$Do.Not.Score.Code...Listening)
 table(dat$valid_listen) 
-# 2019: 123
+# 2019: 14
 sum(is.na(dat$SS_listen)) 
-# 2019: 151
+# 2019: 24
 dat[dat$valid_listen == 1 & is.na(dat$SS_listen), ]
 dat[dat$valid_listen == 0 & !is.na(dat$SS_listen), ] #none
 
@@ -306,9 +307,9 @@ dat$valid_read[dat$Do.Not.Score.Code...Reading == "DEC"] <- 0
 dat$valid_read[dat$Do.Not.Score.Code...Reading == "SPD"] <- 2
 table(dat$Do.Not.Score.Code...Reading)
 table(dat$valid_read)
-# 2019: 114
+# 2019: 10
 sum(is.na(dat$SS_read))
-# 2019: 206
+# 2019: 19
 dat[dat$valid_read == 1 & is.na(dat$SS_read), ]
 dat[dat$valid_read == 0 & !is.na(dat$SS_read), ] #none
 
@@ -320,9 +321,9 @@ dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "DEC"] <- 0
 dat$valid_speak[dat$Do.Not.Score.Code...Speaking == "SPD"] <- 2
 table(dat$Do.Not.Score.Code...Speaking)
 table(dat$valid_speak)
-# 2019: 159
+# 2019: 13
 sum(is.na(dat$SS_speak))
-# 2019: 703
+# 2019: 16
 dat[dat$valid_speak == 1 & is.na(dat$SS_speak), ]
 dat[dat$valid_speak == 0 & !is.na(dat$SS_speak), ] #none
 
@@ -334,18 +335,17 @@ dat$valid_write[dat$Do.Not.Score.Code...Writing == "DEC"] <- 0
 dat$valid_write[dat$Do.Not.Score.Code...Writing == "SPD"] <- 2
 table(dat$Do.Not.Score.Code...Writing)
 table(dat$valid_write)
-# 2019: 118
+# 2019: 7
 sum(is.na(dat$SS_write))
-# 2019: 675
+# 2019: 23
 dat[dat$valid_write == 1 & is.na(dat$SS_write), ]
 dat[dat$valid_write == 0 & !is.na(dat$SS_write), ] #none
 
 # snapshot date
 dat$status <- dat$STATUS
 table(dat$status)
-# 2019: 2 records from 2017
-dat[dat$status == 2017, ]
-# consistent with STARS searches
+# 2019: all from the current year
+
 
 ################################################################################
 ## process invalid records and save file
@@ -354,19 +354,19 @@ dat[dat$status == 2017, ]
 dat$missing_listen[is.na(dat$SS_listen)] <- 1
 dat$missing_listen[!is.na(dat$SS_listen)] <- 0
 table(dat$missing_listen)
-# 2019: 151
+# 2019: 24
 dat$missing_read[is.na(dat$SS_read)] <- 1
 dat$missing_read[!is.na(dat$SS_read)] <- 0
 table(dat$missing_read)
-# 2019: 206
+# 2019: 19
 dat$missing_speak[is.na(dat$SS_speak)] <- 1
 dat$missing_speak[!is.na(dat$SS_speak)] <- 0
 table(dat$missing_speak)
-# 2019: 703
+# 2019: 16
 dat$missing_write[is.na(dat$SS_write)] <- 1
 dat$missing_write[!is.na(dat$SS_write)] <- 0
 table(dat$missing_write)
-# 2019: 675
+# 2019: 23
 dat$missing_domains <- rowSums(dat[, c("missing_listen", 
                                        "missing_read", 
                                        "missing_speak", 
@@ -384,31 +384,35 @@ dat$accommodation[dat$missing_listen == 1 & dat$valid_listen == 2]
 
 table(dat$missing_read, dat$valid_read)
 dat$missing_domains[dat$missing_read == 1 & dat$valid_read == 2]
-# 2019: 0 cases had SPD
+# 2019: 3 cases had SPD
 
 table(dat$missing_speak, dat$valid_speak)
 dat$missing_domains[dat$missing_speak == 1 & dat$valid_speak == 2]
-# 2019: 12 cases had SPD
+# 2019: 8 cases had SPD
 
 table(dat$missing_write, dat$valid_write)
 dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
-# 2019: 4 cases had SPD
+# 2019: 2 cases had SPD
 
 # remove extra columns
-dat <- dat[c(197:258)]
+names(dat)
+dat <- dat[c(214:272)]
 names(dat)
 
 # save student-level file
-write.csv(dat, "ACCESS for ELLs 2018-2019_Cleaned_07102019.csv",
+write.csv(dat, "Alt ACCESS for ELLs 2018-2019_Cleaned_07112019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 nrow(dat) 
-# 2019: 51179
+# 2019: 542
 
 ################################################################################
 # remove student who are missing composite scores
-dat <- dat[!is.na(dat$PL_composite), ]
+dat <- dat[dat$PL_composite != "", ]
 nrow(dat)
-# 2019: 50209
+# 2019: 514
+
+write.csv(dat, "Alt ACCESS for ELLs 2018-2019 Complete Cases_07112019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
 ### calculate rates for SOAP and web files
@@ -419,18 +423,25 @@ dat$statecode <- 999
 groups <- c("allstudents", "gender", "eth", "swd", "frl", 
             "ell", "migrant", "homeless", "military", "foster")
 
-dat$level1[dat$PL_composite >= 1 & dat$PL_composite < 2] <- 1
-dat$level1[is.na(dat$level1)] <- 0
-dat$level2[dat$PL_composite >= 2 & dat$PL_composite < 3] <- 1
-dat$level2[is.na(dat$level2)] <- 0
-dat$level3[dat$PL_composite >= 3 & dat$PL_composite < 4] <- 1
-dat$level3[is.na(dat$level3)] <- 0
-dat$level4[dat$PL_composite >= 4 & dat$PL_composite < 5] <- 1
-dat$level4[is.na(dat$level4)] <- 0
-dat$level5[dat$PL_composite >= 5 & dat$PL_composite < 6] <- 1
-dat$level5[is.na(dat$level5)] <- 0
-dat$level6[dat$PL_composite == 6] <- 1
-dat$level6[is.na(dat$level6)] <- 0
+table(dat$PL_composite)
+dat$a1[dat$PL_composite == "A1"] <- 1
+dat$a1[is.na(dat$a1)] <- 0
+sum(dat$a1)
+dat$a2[dat$PL_composite == "A2"] <- 1
+dat$a2[is.na(dat$a2)] <- 0
+sum(dat$a2)
+dat$a3[dat$PL_composite == "A3"] <- 1
+dat$a3[is.na(dat$a3)] <- 0
+sum(dat$a3)
+dat$p1[dat$PL_composite == "P1"] <- 1
+dat$p1[is.na(dat$p1)] <- 0
+sum(dat$p1)
+dat$p2[dat$PL_composite == "P2"] <- 1
+dat$p2[is.na(dat$p2)] <- 0
+sum(dat$p2)
+dat$p3[dat$PL_composite == "P3"] <- 1
+dat$p3[is.na(dat$p3)] <- 0
+sum(dat$p3)
 
 
 rate <- function(dataset, code) {
@@ -438,26 +449,21 @@ rate <- function(dataset, code) {
     
     for (group in groups) {
         GroupRate <- dataset %>%
-            select(code, group, 
-                   level1, level2, level3, level4, level5, level6, 
-                   proficient) %>%
+            select(code, group, a1, a2, a3, p1, p2, p3, proficient) %>%
             group_by(dataset[[code]], dataset[[group]]) %>%
             summarise(NStudents = n(),
-                      Level1 = (sum(level1) / NStudents) * 100,
-                      Level2 = (sum(level2) / NStudents) * 100,
-                      Level3 = (sum(level3) / NStudents) * 100,
-                      Level4 = (sum(level4) / NStudents) * 100,
-                      Level5 = (sum(level5) / NStudents) * 100,
-                      Level6 = (sum(level6) / NStudents) * 100,
-                      Level12 = ((sum(level1) + sum(level2)) / NStudents) * 100,
-                      level34 = ((sum(level3) + sum(level4)) / NStudents) * 100,
-                      level56 = ((sum(level5) + sum(level6)) / NStudents) * 100,
+                      A1 = (sum(a1) / NStudents) * 100,
+                      A2 = (sum(a2) / NStudents) * 100,
+                      A3 = (sum(a3) / NStudents) * 100,
+                      P1 = (sum(p1) / NStudents) * 100,
+                      P2 = (sum(p2) / NStudents) * 100,
+                      P3 = (sum(p3) / NStudents) * 100,
+                      A123 = ((sum(a1) + sum(a2) + sum(a3)) / NStudents) * 100,
+                      P123 = ((sum(p1) + sum(p2) + sum(p3)) / NStudents) * 100,
                       ProficiencyRate = (sum(proficient) / NStudents * 100))
         names(GroupRate) <- c("Code", "Group", "NStudents", 
-                              "Level1", "Level2", "Level3", 
-                              "Level4", "Level5", "Level6",
-                              "Level12", "Level34", "Level56",
-                              "ProficiencyRate")
+                              "A1", "A2", "A3", "P1", "P2", "P3",
+                              "A123", "P123", "ProficiencyRate")
         
         GroupRate <- GroupRate[GroupRate$Code != 999999, ]
         Rates <- rbind(GroupRate, Rates)
@@ -511,6 +517,7 @@ all$SORTCODE[all$Group == "Military"] <- 14
 all$SORTCODE[all$Group == "Foster Care"] <- 15
 table(all$SORTCODE)
 # ELs will be removed from the files, since all students should be ELs
+# SWD will be removed from the files, since all students should be SWDs.
 
 # add district and school names
 all$DistrictName <- schools$distname[match(all$DistrictCode, schools$distcode)]
@@ -520,6 +527,7 @@ all$SchoolName[all$SORT == 1] <- "All Students"
 all$SchoolName[all$SORT == 2] <- "Districtwide"
 
 # check for missing district and school names
+all <- all[!is.na(all$schnumb), ]
 all[is.na(all$DistrictName), ] #none
 all$schnumb[is.na(all$SchoolName)] #none
 
@@ -527,30 +535,32 @@ all$schnumb[is.na(all$SchoolName)] #none
 # SOAP file
 SOAP <- all[c("schnumb", "DistrictCode", "DistrictName", 
               "SchoolCode", "SchoolName", "Group", "NStudents",
-              "Level1", "Level2", "Level3", "Level4", "Level5", "Level6",
+              "A1", "A2","A3", "P1", "P2", "P3",
               "ProficiencyRate", "SORTCODE", "SORT")]
 
 # remove entries that do not have sortcodes
 SOAP <- SOAP[!is.na(SOAP$SORTCODE), ]
 # remove entries for ELs since all students should be ELs
 SOAP <- SOAP[SOAP$SORTCODE != 11, ]
+# remove entries for SWDs since all students should be SWDs
+SOAP <- SOAP[SOAP$SORTCODE != 10, ]
 nrow(SOAP)
-# 2019: 7446
+# 2019: 1057
 
 # remove district-level rates for state charter schools
 # except for 542 Mission Achievement and Success, since there are two schools
 SOAP <- SOAP[!(SOAP$DistrictCode > 500 & SOAP$SchoolName == "Districtwide"), ]
 nrow(SOAP)
-# 2019: 7075
+# 2019: 1035
 
 # round to one digit
 head(SOAP)
-SOAP$Level1 <- round(SOAP$Level1, digits = 1)
-SOAP$Level2 <- round(SOAP$Level2, digits = 1)
-SOAP$Level3 <- round(SOAP$Level3, digits = 1)
-SOAP$Level4 <- round(SOAP$Level4, digits = 1)
-SOAP$Level5 <- round(SOAP$Level5, digits = 1)
-SOAP$Level6 <- round(SOAP$Level6, digits = 1)
+SOAP$A1 <- round(SOAP$A1, digits = 1)
+SOAP$A2 <- round(SOAP$A2, digits = 1)
+SOAP$A3 <- round(SOAP$A3, digits = 1)
+SOAP$P1 <- round(SOAP$P1, digits = 1)
+SOAP$P2 <- round(SOAP$P2, digits = 1)
+SOAP$P3 <- round(SOAP$P3, digits = 1)
 SOAP$ProficiencyRate <- round(SOAP$ProficiencyRate, digits = 1)
 head(SOAP)
 
@@ -559,7 +569,7 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07102019.csv",
+write.csv(SOAP, "Alt ACCESS for ELLs UNMASKED SOAP 2018-2019 07112019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
