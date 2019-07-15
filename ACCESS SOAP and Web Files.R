@@ -508,14 +508,25 @@ nrow(SOAP)
 # 2019: 7075
 
 # round to one digit
+# R rounds 0.5 to even, but this function rounds 0.5 up
+round2 <- function(x, digits) {
+    posneg <- sign(x)
+    z <- abs(x) * (10 ^ digits)
+    z <- z + 0.5
+    z <- as.numeric(as.character(z))
+    z <- trunc(z)
+    z <- z / (10 ^ digits)
+    z * posneg
+}
+
 head(SOAP)
-SOAP$Level1 <- round(SOAP$Level1, digits = 1)
-SOAP$Level2 <- round(SOAP$Level2, digits = 1)
-SOAP$Level3 <- round(SOAP$Level3, digits = 1)
-SOAP$Level4 <- round(SOAP$Level4, digits = 1)
-SOAP$Level5 <- round(SOAP$Level5, digits = 1)
-SOAP$Level6 <- round(SOAP$Level6, digits = 1)
-SOAP$ProficiencyRate <- round(SOAP$ProficiencyRate, digits = 1)
+SOAP$Level1 <- round2(SOAP$Level1, digits = 1)
+SOAP$Level2 <- round2(SOAP$Level2, digits = 1)
+SOAP$Level3 <- round2(SOAP$Level3, digits = 1)
+SOAP$Level4 <- round2(SOAP$Level4, digits = 1)
+SOAP$Level5 <- round2(SOAP$Level5, digits = 1)
+SOAP$Level6 <- round2(SOAP$Level6, digits = 1)
+SOAP$ProficiencyRate <- round2(SOAP$ProficiencyRate, digits = 1)
 head(SOAP)
 
 # sorting
@@ -523,7 +534,7 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07102019.csv",
+write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07152019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
@@ -548,9 +559,9 @@ nrow(web)
 
 # round to integers
 head(web)
-web$Level12 <- round(web$Level12, digits = 0)
-web$Level34 <- round(web$Level34, digits = 0)
-web$Level56 <- round(web$Level56, digits = 0)
+web$Level12 <- round2(web$Level12, digits = 0)
+web$Level34 <- round2(web$Level34, digits = 0)
+web$Level56 <- round2(web$Level56, digits = 0)
 head(web)
 
 # check totals
