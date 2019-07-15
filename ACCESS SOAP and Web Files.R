@@ -361,12 +361,13 @@ names(dat)
 # save student-level file
 write.csv(dat, "ACCESS for ELLs 2018-2019_Cleaned_07102019.csv",
           row.names = FALSE, quote = FALSE, na = "")
-nrow(dat) 
+nrow(dat)
 # 2019: 51179
 
 ################################################################################
 # remove student who are missing composite scores
 dat <- dat[!is.na(dat$PL_composite), ]
+dat <- dat[!is.na(dat$test_schnumb), ]
 nrow(dat)
 # 2019: 50209
 
@@ -659,7 +660,7 @@ mask <- function(dataset, level) {
             row$pct[row[[level]] >= 40 & row[[level]] < 50] <- "40-49"
             row$pct[row[[level]] >= 50 & row[[level]] < 60] <- "50-59"
             row$pct[row[[level]] >= 60 & row[[level]] < 70] <- "60-69"
-            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "79-80"
+            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "70-79"
             row$pct[row[[level]] >= 80] <- "GE 80"
         }
         masked <- rbind(row, masked)    
@@ -688,7 +689,7 @@ final <- webfile[c("schnumb", "DistrictName", "SchoolName",
 head(final)
 
 # save output
-write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07102019.csv",
+write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07152019.csv",
           row.names = FALSE)
 
 
