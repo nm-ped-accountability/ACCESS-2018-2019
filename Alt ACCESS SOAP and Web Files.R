@@ -408,8 +408,9 @@ nrow(dat)
 ################################################################################
 # remove student who are missing composite scores
 dat <- dat[dat$PL_composite != "", ]
+dat <- dat[!is.na(dat$test_schnumb), ]
 nrow(dat)
-# 2019: 514
+# 2019: 497
 
 write.csv(dat, "Alt ACCESS for ELLs 2018-2019 Complete Cases_07112019.csv",
           row.names = FALSE, quote = FALSE, na = "")
@@ -572,12 +573,12 @@ SOAP$SORTCODE <- NULL
 write.csv(SOAP, "Alt ACCESS for ELLs UNMASKED SOAP 2018-2019 07112019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
+
 ################################################################################
 # web file
 web <- all[c("schnumb", "DistrictCode", "DistrictName", 
              "SchoolCode", "SchoolName", "Group", "NStudents",
-             "Level12", "Level34", "Level56",
-             "SORTCODE", "SORT")]
+             "A123", "P123", "SORTCODE", "SORT")]
 
 # remove state charters' district-level rates
 # remove non-state charter schools' school-level rates
@@ -590,18 +591,17 @@ web <- web %>%
     filter(SchoolCode != 998) #homebound
 web$SORTCODE <- NULL
 nrow(web)
-# 2019: 128
+# 2019: 37
 
 # round to integers
 head(web)
-web$Level12 <- round(web$Level12, digits = 0)
-web$Level34 <- round(web$Level34, digits = 0)
-web$Level56 <- round(web$Level56, digits = 0)
+web$A123 <- round(web$A123, digits = 0)
+web$P123 <- round(web$P123, digits = 0)
 head(web)
 
 # check totals
-web$total <- rowSums(web[, c("Level12", "Level34", "Level56")])
-range(web$total) #99-101
+web$total <- rowSums(web[, c("A123", "P123")])
+range(web$total) #100
 web$total <- NULL
 
 
@@ -612,7 +612,7 @@ web$total <- NULL
 nrow(web) 
 web <- web[web$NStudents >= 10, ]
 nrow(web)
-# 2019: 105
+# 2019: 12
 
 mask <- function(dataset, level) {
     masked <- data.frame()
@@ -706,7 +706,7 @@ mask <- function(dataset, level) {
             row$pct[row[[level]] >= 40 & row[[level]] < 50] <- "40-49"
             row$pct[row[[level]] >= 50 & row[[level]] < 60] <- "50-59"
             row$pct[row[[level]] >= 60 & row[[level]] < 70] <- "60-69"
-            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "79-80"
+            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "70-79"
             row$pct[row[[level]] >= 80] <- "GE 80"
         }
         masked <- rbind(row, masked)    
@@ -714,28 +714,21 @@ mask <- function(dataset, level) {
     masked <- masked[order(masked$SORT, masked$schnumb), ]
 }
 
-level12 <- mask(web, "Level12")
-colnames(level12)[12] <- "PL12"
-head(level12)
+A123 <- mask(web, "A123")
+colnames(A123)[11] <- "A_123"
 
-level34 <- mask(web, "Level34")
-colnames(level34)[12] <- "PL34"
-head(level34)
-
-level56 <- mask(web, "Level56")
-colnames(level56)[12] <- "PL56"
-head(level56)
+P123 <- mask(web, "P123")
+colnames(P123)[11] <- "P_123"
 
 # merge files
-webfile <- cbind(level12, level34[c(12)], level56[c(12)])
+webfile <- cbind(A123, P123[c(11)])
 head(webfile)
 
-final <- webfile[c("schnumb", "DistrictName", "SchoolName", 
-                   "PL12", "PL34", "PL56")]
+final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A123", "P123")]
 head(final)
 
 # save output
-write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07102019.csv",
+write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07152019.csv",
           row.names = FALSE)
 
 
