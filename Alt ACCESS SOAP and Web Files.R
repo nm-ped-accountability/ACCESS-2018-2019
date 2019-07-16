@@ -749,7 +749,7 @@ colnames(P123)[11] <- "P_123"
 webfile <- cbind(A123, P123[c(11)])
 head(webfile)
 
-final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A123", "P123")]
+final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A_123", "P_123")]
 head(final)
 
 # save masked web file
