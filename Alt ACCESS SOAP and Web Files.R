@@ -13,7 +13,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File_2019-07_10.csv",
+raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File_2019-07_16.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat)
