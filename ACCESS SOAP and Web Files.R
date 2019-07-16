@@ -359,7 +359,7 @@ dat <- dat[c(197:258)]
 names(dat)
 
 # save student-level file
-write.csv(dat, "ACCESS for ELLs 2018-2019_Cleaned_07102019.csv",
+write.csv(dat, "ACCESS for ELLs 2018-2019_Cleaned_07162019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 nrow(dat)
 # 2019: 51179
@@ -371,7 +371,7 @@ dat <- dat[!is.na(dat$test_schnumb), ]
 nrow(dat)
 # 2019: 50209
 
-write.csv(dat, "ACCESS for ELLs 2018-2019 Complete Cases_07112019.csv",
+write.csv(dat, "ACCESS for ELLs 2018-2019 Complete Cases_07162019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
@@ -534,7 +534,7 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07152019.csv",
+write.csv(SOAP, "ACCESS for ELLs UNMASKED SOAP 2018-2019 07162019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
@@ -700,7 +700,7 @@ final <- webfile[c("schnumb", "DistrictName", "SchoolName",
 head(final)
 
 # save output
-write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07152019.csv",
+write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07162019.csv",
           row.names = FALSE)
 
 
