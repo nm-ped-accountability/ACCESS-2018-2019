@@ -13,7 +13,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File_2019-07_16.csv",
+raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File 2019-07-16.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat)
@@ -400,8 +400,13 @@ dat <- dat[c(214:272)]
 names(dat)
 
 # save student-level file
-write.csv(dat, "Alt ACCESS for ELLs 2018-2019_Cleaned_07162019.csv",
-          row.names = FALSE, quote = FALSE, na = "")
+current_date <- Sys.Date()
+
+file_name <- paste0("Alt ACCESS for ELLs 2018-2019 Cleaned ", 
+                    current_date, ".csv")
+
+write.csv(dat, file = file_name, row.names = FALSE)
+
 nrow(dat) 
 # 2019: 542
 
@@ -412,8 +417,13 @@ dat <- dat[!is.na(dat$test_schnumb), ]
 nrow(dat)
 # 2019: 497
 
-write.csv(dat, "Alt ACCESS for ELLs 2018-2019 Complete Cases_07162019.csv",
-          row.names = FALSE, quote = FALSE, na = "")
+# save student-level file with complete cases
+current_date <- Sys.Date()
+
+file_name <- paste0("Alt ACCESS for ELLs 2018-2019 Complete Cases ",
+                    current_date, ".csv")
+
+write.csv(dat, file = file_name, row.names = FALSE)
 
 ################################################################################
 ### calculate rates for SOAP and web files
@@ -580,8 +590,13 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "Alt ACCESS for ELLs UNMASKED SOAP 2018-2019 07162019.csv",
-          row.names = FALSE, quote = FALSE, na = "")
+# save unmasked SOAP file
+current_date <- Sys.Date()
+
+file_name <- paste0("Alt ACCESS for ELLs UNMASKED SOAP 2018-2019 ",
+                    current_date, ".csv")
+
+write.csv(SOAP, file = file_name, row.names = FALSE)
 
 
 ################################################################################
@@ -737,9 +752,13 @@ head(webfile)
 final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A123", "P123")]
 head(final)
 
-# save output
-write.csv(final, "ACCESS for ELLs MASKED Web 2018-2019 07162019.csv",
-          row.names = FALSE)
+# save masked web file
+current_date <- Sys.Date()
+
+file_name <- paste0("Alt ACCESS for ELLs MASKED web 2018-2019 ", 
+                    current_date, ".csv")
+
+write.csv(final, file = file_name, row.names = FALSE)
 
 
 ################################################################################
