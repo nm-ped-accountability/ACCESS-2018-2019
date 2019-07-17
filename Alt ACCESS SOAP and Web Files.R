@@ -278,9 +278,7 @@ table(dat$PL_literacy)
 table(dat$PL_composite)
 
 # proficient
-dat$proficient[dat$PL_composite == "P1" | 
-                   dat$PL_composite == "P2" | 
-                   dat$PL_composite == "P3"] <- 1
+dat$proficient[dat$PL_composite == "P1" | dat$PL_composite == "P2"] <- 1
 dat$proficient[is.na(dat$proficient)] <- 0
 table(dat$proficient)
 
@@ -450,9 +448,6 @@ sum(dat$p1)
 dat$p2[dat$PL_composite == "P2"] <- 1
 dat$p2[is.na(dat$p2)] <- 0
 sum(dat$p2)
-dat$p3[dat$PL_composite == "P3"] <- 1
-dat$p3[is.na(dat$p3)] <- 0
-sum(dat$p3)
 
 
 rate <- function(dataset, code) {
@@ -460,7 +455,7 @@ rate <- function(dataset, code) {
     
     for (group in groups) {
         GroupRate <- dataset %>%
-            select(code, group, a1, a2, a3, p1, p2, p3, proficient) %>%
+            select(code, group, a1, a2, a3, p1, p2, proficient) %>%
             group_by(dataset[[code]], dataset[[group]]) %>%
             summarise(NStudents = n(),
                       A1 = (sum(a1) / NStudents) * 100,
@@ -468,13 +463,12 @@ rate <- function(dataset, code) {
                       A3 = (sum(a3) / NStudents) * 100,
                       P1 = (sum(p1) / NStudents) * 100,
                       P2 = (sum(p2) / NStudents) * 100,
-                      P3 = (sum(p3) / NStudents) * 100,
                       A123 = ((sum(a1) + sum(a2) + sum(a3)) / NStudents) * 100,
-                      P123 = ((sum(p1) + sum(p2) + sum(p3)) / NStudents) * 100,
+                      P12 = ((sum(p1) + sum(p2)) / NStudents) * 100,
                       ProficiencyRate = (sum(proficient) / NStudents * 100))
         names(GroupRate) <- c("Code", "Group", "NStudents", 
-                              "A1", "A2", "A3", "P1", "P2", "P3",
-                              "A123", "P123", "ProficiencyRate")
+                              "A1", "A2", "A3", "P1", "P2",
+                              "A123", "P12", "ProficiencyRate")
         
         GroupRate <- GroupRate[GroupRate$Code != 999999, ]
         Rates <- rbind(GroupRate, Rates)
@@ -546,7 +540,7 @@ all$schnumb[is.na(all$SchoolName)] #none
 # SOAP file
 SOAP <- all[c("schnumb", "DistrictCode", "DistrictName", 
               "SchoolCode", "SchoolName", "Group", "NStudents",
-              "A1", "A2","A3", "P1", "P2", "P3",
+              "A1", "A2","A3", "P1", "P2", 
               "ProficiencyRate", "SORTCODE", "SORT")]
 
 # remove entries that do not have sortcodes
@@ -581,7 +575,6 @@ SOAP$A2 <- round2(SOAP$A2, digits = 1)
 SOAP$A3 <- round2(SOAP$A3, digits = 1)
 SOAP$P1 <- round2(SOAP$P1, digits = 1)
 SOAP$P2 <- round2(SOAP$P2, digits = 1)
-SOAP$P3 <- round2(SOAP$P3, digits = 1)
 SOAP$ProficiencyRate <- round2(SOAP$ProficiencyRate, digits = 1)
 head(SOAP)
 
@@ -603,7 +596,7 @@ write.csv(SOAP, file = file_name, row.names = FALSE)
 # web file
 web <- all[c("schnumb", "DistrictCode", "DistrictName", 
              "SchoolCode", "SchoolName", "Group", "NStudents",
-             "A123", "P123", "SORTCODE", "SORT")]
+             "A123", "P12", "SORTCODE", "SORT")]
 
 # remove state charters' district-level rates
 # remove non-state charter schools' school-level rates
@@ -621,11 +614,11 @@ nrow(web)
 # round to integers
 head(web)
 web$A123 <- round2(web$A123, digits = 0)
-web$P123 <- round2(web$P123, digits = 0)
+web$P12 <- round2(web$P12, digits = 0)
 head(web)
 
 # check totals
-web$total <- rowSums(web[, c("A123", "P123")])
+web$total <- rowSums(web[, c("A123", "P12")])
 range(web$total) #100
 web$total <- NULL
 
@@ -742,14 +735,14 @@ mask <- function(dataset, level) {
 A123 <- mask(web, "A123")
 colnames(A123)[11] <- "A_123"
 
-P123 <- mask(web, "P123")
-colnames(P123)[11] <- "P_123"
+P12 <- mask(web, "P12")
+colnames(P12)[11] <- "P_12"
 
 # merge files
-webfile <- cbind(A123, P123[c(11)])
+webfile <- cbind(A123, P12[c(11)])
 head(webfile)
 
-final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A_123", "P_123")]
+final <- webfile[c("schnumb", "DistrictName", "SchoolName", "A_123", "P_12")]
 head(final)
 
 # save masked web file
