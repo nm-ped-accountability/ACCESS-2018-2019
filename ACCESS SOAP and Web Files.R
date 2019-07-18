@@ -234,6 +234,12 @@ dat$PL_comprehension <- dat$Comprehension.Proficiency.Level
 dat$PL_oral <- dat$Oral.Proficiency.Level
 dat$PL_literacy <- dat$Literacy.Proficiency.Level
 dat$PL_composite <- dat$Composite..Overall..Proficiency.Level
+dat$PL_integer[dat$PL_composite >= 1 & dat$PL_composite < 2] <- 1
+dat$PL_integer[dat$PL_composite >= 2 & dat$PL_composite < 3] <- 2
+dat$PL_integer[dat$PL_composite >= 3 & dat$PL_composite < 4] <- 3
+dat$PL_integer[dat$PL_composite >= 4 & dat$PL_composite < 5] <- 4
+dat$PL_integer[dat$PL_composite >= 5 & dat$PL_composite < 6] <- 5
+dat$PL_integer[dat$PL_composite >= 6] <- 6
 range(dat$PL_listen, na.rm = TRUE)
 range(dat$PL_read, na.rm = TRUE)
 range(dat$PL_speak, na.rm = TRUE)
@@ -242,6 +248,7 @@ range(dat$PL_comprehension, na.rm = TRUE)
 range(dat$PL_oral, na.rm = TRUE)
 range(dat$PL_listen, na.rm = TRUE)
 range(dat$PL_composite, na.rm = TRUE)
+range(dat$PL_integer, na.rm = TRUE)
 
 # proficient
 dat$proficient[dat$PL_composite >= 5.0] <- 1
@@ -397,19 +404,18 @@ dat$statecode <- 999
 groups <- c("allstudents", "gender", "eth", "swd", "frl", 
             "ell", "migrant", "homeless", "military", "foster")
 
-dat$level1[dat$PL_composite >= 1 & dat$PL_composite < 2] <- 1
+dat$level1[dat$PL_integer == 1] <- 1
 dat$level1[is.na(dat$level1)] <- 0
-dat$level2[dat$PL_composite >= 2 & dat$PL_composite < 3] <- 1
+dat$level2[dat$PL_integer == 2] <- 1
 dat$level2[is.na(dat$level2)] <- 0
-dat$level3[dat$PL_composite >= 3 & dat$PL_composite < 4] <- 1
+dat$level3[dat$PL_integer == 3] <- 1
 dat$level3[is.na(dat$level3)] <- 0
-dat$level4[dat$PL_composite >= 4 & dat$PL_composite < 5] <- 1
+dat$level4[dat$PL_integer == 4] <- 1
 dat$level4[is.na(dat$level4)] <- 0
-dat$level5[dat$PL_composite >= 5 & dat$PL_composite < 6] <- 1
+dat$level5[dat$PL_integer == 5] <- 1
 dat$level5[is.na(dat$level5)] <- 0
-dat$level6[dat$PL_composite == 6] <- 1
+dat$level6[dat$PL_integer == 6] <- 1
 dat$level6[is.na(dat$level6)] <- 0
-
 
 rate <- function(dataset, code) {
     Rates <- data.frame()
