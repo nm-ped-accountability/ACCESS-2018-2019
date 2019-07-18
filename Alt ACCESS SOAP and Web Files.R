@@ -13,15 +13,17 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File 2019-07-16.csv",
+raw <- read.csv("ADDED DEMO NM_Alternate_StudRR_File 2019-07-18.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat)
-# 2019: 542
+# 2019: 540
 
 schools <- read.csv("Master Schools 2019 V3.csv", 
                     header = TRUE, stringsAsFactors = FALSE)
 schools <- schools[schools$ï..SY == 2019, ]
+nrow(schools)
+# 2019: 1802
 
 ################################################################################
 ## recode variables
@@ -123,6 +125,9 @@ dat$frl[dat$S_FRLP == "N"] <- "Non ED"
 table(dat$frl)
 
 # ell
+table(dat$S_ELL_STATUS)
+table(dat$S_ELL_LEVEL)
+dat[dat$S_ELL_STATUS == "Y" & dat$S_ELL_LEVEL != 1, ] #none
 dat$ell[dat$S_ELL_STATUS == "Y"] <- "English Learners"
 dat$ell[dat$S_ELL_STATUS == "N"] <- "Non EL"
 table(dat$ell)
@@ -406,14 +411,14 @@ file_name <- paste0("Alt ACCESS for ELLs 2018-2019 Cleaned ",
 write.csv(dat, file = file_name, row.names = FALSE)
 
 nrow(dat) 
-# 2019: 542
+# 2019: 540
 
 ################################################################################
 # remove student who are missing composite scores
 dat <- dat[dat$PL_composite != "", ]
 dat <- dat[!is.na(dat$test_schnumb), ]
 nrow(dat)
-# 2019: 497
+# 2019: 495
 
 # save student-level file with complete cases
 current_date <- Sys.Date()
@@ -550,13 +555,13 @@ SOAP <- SOAP[SOAP$SORTCODE != 11, ]
 # remove entries for SWDs since all students should be SWDs
 SOAP <- SOAP[SOAP$SORTCODE != 10, ]
 nrow(SOAP)
-# 2019: 1057
+# 2019: 1053
 
 # remove district-level rates for state charter schools
 # except for 542 Mission Achievement and Success, since there are two schools
 SOAP <- SOAP[!(SOAP$DistrictCode > 500 & SOAP$SchoolName == "Districtwide"), ]
 nrow(SOAP)
-# 2019: 1035
+# 2019: 1031
 
 # this function rounds 0.5 up
 round2 <- function(x, digits) {
