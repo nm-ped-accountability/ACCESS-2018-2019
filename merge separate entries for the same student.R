@@ -71,7 +71,7 @@ merge <- function(student_ID, DRC_3domains, DRC_writing) {
     
     dups$Literacy.Proficiency.Level[dups$State.Student.ID == student_ID] <- literacy_pl
     
-    # look up composite proficiency levels
+    # look up composite proficiency level
     level <- dups$Cluster...Listening[dups$State.Student.ID == student_ID]
     grade <- dups$Grade[dups$State.Student.ID == student_ID]
     composite_ss <- dups$Composite..Overall..Scale.Score[dups$State.Student.ID == student_ID]
@@ -86,3 +86,4 @@ merge <- function(student_ID, DRC_3domains, DRC_writing) {
     # return the data frame
     dups
 }
+
