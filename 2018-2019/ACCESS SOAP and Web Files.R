@@ -38,12 +38,14 @@ dat$STARS_schnumb <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
 
 # distcode
 dat$distcode <- dat$District.Number
+dat$STARS_distcode <- dat$S_DISTRICT_CODE
 
 # distname
 dat$distname <- schools$distname[match(dat$distcode, schools$distcode)]
 
 # schcode
 dat$schcode <- dat$School.Number
+dat$STARS_schcode <- dat$S_LOCATION_CODE
 
 # schname
 dat$schname <- schools$schname[match(dat$test_schnumb, schools$schnumb)]
@@ -175,34 +177,49 @@ dat$testlang <- "E"
 
 # accommodation
 table(dat$BR...Accommodation)
-dat$accommodation[dat$BR...Accommodation == "Y"] <- 1 #Braille, values of C(contracted) and U(uncontracted) are also possible
-dat$accommodation[dat$EM...Accommodation == "Y"] <- 1 #extended testing of a test domain over multiple days
-dat$accommodation[dat$ES...Accommodation == "Y"] <- 1 #extended speaking test response time
-dat$accommodation[dat$ET...Accommodation == "Y"] <- 1 #extended testing time within the school day
-dat$accommodation[dat$HI...Accommodation == "Y"] <- 1 #human reader for items
-dat$accommodation[dat$HR...Accommodation == "Y"] <- 1 #human reader for response options
-dat$accommodation[dat$LP...Accommodation == "Y"] <- 1 #large print
-dat$accommodation[dat$MC...Accommodation == "Y"] <- 1 #manual control of item audio
-dat$accommodation[dat$NS...Accommodation == "Y"] <- 1 #test may be administered in a non-school setting
-dat$accommodation[dat$RA...Accommodation == "Y"] <- 1 #repeate item audio
-dat$accommodation[dat$RD...Accommodation == "Y"] <- 1 #student responds using a recording device, which is played back and transcribed by the student
-dat$accommodation[dat$RI...Accommodation == "Y"] <- 1 #human reader for repeat of items
-dat$accommodation[dat$RR...Accommodation == "Y"] <- 1 #human reader for repeat of response options
-dat$accommodation[dat$SD...Accommodation == "Y"] <- 1 #interpreter signs test directions in ASL
-dat$accommodation[dat$SR...Accommodation == "Y"] <- 1 #scribe
-dat$accommodation[dat$WD...Accommodation == "Y"] <- 1 #word processor
-dat$accommodation[is.na(dat$accommodation)] <- 0
+dat$accommodation[dat$BR...Accommodation == "Y"] <- "Y" #Braille, values of C(contracted) and U(uncontracted) are also possible
+dat$accommodation[dat$EM...Accommodation == "Y"] <- "Y" #extended testing of a test domain over multiple days
+dat$accommodation[dat$ES...Accommodation == "Y"] <- "Y" #extended speaking test response time
+dat$accommodation[dat$ET...Accommodation == "Y"] <- "Y" #extended testing time within the school day
+dat$accommodation[dat$HI...Accommodation == "Y"] <- "Y" #human reader for items
+dat$accommodation[dat$HR...Accommodation == "Y"] <- "Y" #human reader for response options
+dat$accommodation[dat$LP...Accommodation == "Y"] <- "Y" #large print
+dat$accommodation[dat$MC...Accommodation == "Y"] <- "Y" #manual control of item audio
+dat$accommodation[dat$NS...Accommodation == "Y"] <- "Y" #test may be administered in a non-school setting
+dat$accommodation[dat$RA...Accommodation == "Y"] <- "Y" #repeate item audio
+dat$accommodation[dat$RD...Accommodation == "Y"] <- "Y" #student responds using a recording device, which is played back and transcribed by the student
+dat$accommodation[dat$RI...Accommodation == "Y"] <- "Y" #human reader for repeat of items
+dat$accommodation[dat$RR...Accommodation == "Y"] <- "Y" #human reader for repeat of response options
+dat$accommodation[dat$SD...Accommodation == "Y"] <- "Y" #interpreter signs test directions in ASL
+dat$accommodation[dat$SR...Accommodation == "Y"] <- "Y" #scribe
+dat$accommodation[dat$WD...Accommodation == "Y"] <- "Y" #word processor
+dat$accommodation[is.na(dat$accommodation)] <- "N"
 table(dat$accommodation)
 
 # mode
+dat$Mode.of.Administration...Listening <- str_trim(dat$Mode.of.Administration...Listening)
 table(dat$Mode.of.Administration...Listening)
-dat$mode_listen <- dat$Mode.of.Administration...Listening
+dat$cbt_listen[dat$Mode.of.Administration...Listening == "Online"] <- "Y"
+dat$cbt_listen[dat$Mode.of.Administration...Listening == "Paper"] <- "N"
+table(dat$cbt_listen)
+
+dat$Mode.of.Administration...Reading <- str_trim(dat$Mode.of.Administration...Reading)
 table(dat$Mode.of.Administration...Reading)
-dat$mode_read <- dat$Mode.of.Administration...Reading
+dat$cbt_read[dat$Mode.of.Administration...Reading == "Online"] <- "Y"
+dat$cbt_read[dat$Mode.of.Administration...Reading == "Paper"] <- "N"
+table(dat$cbt_read)
+
+dat$Mode.of.Administration...Speaking <- str_trim(dat$Mode.of.Administration...Speaking)
 table(dat$Mode.of.Administration...Speaking)
-dat$mode_speak <- dat$Mode.of.Administration...Speaking
+dat$cbt_speak[dat$Mode.of.Administration...Speaking == "Online"] <- "Y"
+dat$cbt_speak[dat$Mode.of.Administration...Speaking == "Paper"] <- "N"
+table(dat$cbt_speak)
+
+dat$Mode.of.Administration...Writing <- str_trim(dat$Mode.of.Administration...Writing)
 table(dat$Mode.of.Administration...Writing)
-dat$mode_write <- dat$Mode.of.Administration...Writing
+dat$cbt_write[dat$Mode.of.Administration...Writing == "Online"] <- "Y"
+dat$cbt_write[dat$Mode.of.Administration...Writing == "Paper"] <- "N"
+table(dat$cbt_write)
 
 # testbookid
 dat$testbookid <- dat$Unique.DRC.Student.ID
@@ -380,6 +397,68 @@ write.csv(dat, file = file_name, row.names = FALSE)
 nrow(dat)
 # 2019: 51178
 
+
+################################################################################
+### create DAD file
+################################################################################
+dad <- dat %>%
+    mutate("TestbookID" = testbookid,
+           "StID" = stid,
+           "Vendor_SchNumb" = test_schnumb,
+           "Vendor_DistCode" = distcode,
+           "Vendor_DistName" = distname,
+           "Vendor_SchCode" = schcode,
+           "Vendor_SchName" = schname,
+           "Last" = str_to_title(last),
+           "First" = str_to_title(first),
+           "MI" = str_to_upper(mi),
+           "Tested_Grade" = NA,
+           "Tested_Grade_Listen" = test_grade_listen,
+           "Tested_Grade_Read" = test_grade_read,
+           "Tested_Grade_Speak" = test_grade_speak,
+           "Tested_Grade_Write" = test_grade_write,
+           "STARS_Grade" = STARS_grade,
+           "Pref_Grade" = NA,
+           "Accomm" = accommodation,
+           "CBT" = NA,
+           "CBT_Listen" = cbt_listen,
+           "CBT_Read" = cbt_read,
+           "CBT_Speak" = cbt_speak,
+           "CBT_Write" = cbt_write,
+           "Testname" = "ACCESS",
+           "Subtest" = "ELP",
+           "TestCode" = "ELP",
+           "TestLang" = testlang,
+           "PL" = PL_composite,
+           "PL_Listen" = PL_listen,
+           "PL_Read" = PL_read,
+           "PL_Speak" = PL_speak,
+           "PL_Write" = PL_write,
+           "PL_Comprehension" = PL_comprehension,
+           "PL_Oral" = PL_oral,
+           "PL_Literacy" = PL_literacy,
+           "Proficient" = proficient,
+           "SS" = SS_composite,
+           "NewSS" = NA,
+           "SS_Listen" = SS_listen,
+           "SS_Read" = SS_read,
+           "SS_Speak" = SS_speak,
+           "SS_Write" = SS_write,
+           "SS_Comprehension" = SS_comprehension,
+           "SS_Oral" = SS_oral,
+           "SS_Literacy" = SS_literacy,
+           "IstationTime" = NA,
+           "Pearson_SGP" = NA) %>%
+    select(63:109)
+
+str(dad)
+
+# save file
+current_dat <- Sys.Date()
+file_name <- paste0("ACCESS for 2019 DAD ", current_date, ".csv")
+write.csv(dad, file = file_name, row.names = FALSE, na = "")
+
+
 ################################################################################
 # remove student who are missing composite scores
 dat <- dat[!is.na(dat$PL_composite), ]
@@ -394,6 +473,7 @@ file_name <- paste0("ACCESS for ELLs 2018-2019 Complete Cases ",
                     current_date, ".csv")
 
 write.csv(dat, file = file_name, row.names = FALSE)
+
 
 ################################################################################
 ### calculate rates for SOAP and web files
