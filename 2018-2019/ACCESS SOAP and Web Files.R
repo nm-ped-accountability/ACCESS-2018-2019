@@ -384,7 +384,8 @@ dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
 # 2019: 4 cases had SPD
 
 # remove extra columns
-dat <- dat[c(197:258)]
+names(dat)
+dat <- dat[c(197:261)]
 names(dat)
 
 # save student-level file
@@ -449,8 +450,9 @@ dad <- dat %>%
            "SS_Literacy" = SS_literacy,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(63:109)
+    select(66:112)
 
+names(dad)
 str(dad)
 
 # save file
