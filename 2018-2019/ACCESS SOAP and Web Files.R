@@ -78,6 +78,8 @@ dat$dob <- mdy(dat$dob)
 str(dat$dob)
 
 # test_grade
+# use reading grade as test grade
+dat$test_grade <- dat$Cluster...Reading
 dat$test_grade_listen <- dat$Cluster...Listening
 table(dat$test_grade_listen)
 dat$test_grade_read <- dat$Cluster...Reading
@@ -170,7 +172,18 @@ table(dat$foster)
 dat$testname <- "ACCESS"
 
 # subtest
-dat$subtest <- "ACCESS"
+dat$subtest <- "ELP"
+
+# testcode
+table(dat$test_grade)
+dat$testcode[dat$test_grade == 0] <- "ELP00"
+dat$testcode[dat$test_grade == 1] <- "ELP01"
+dat$testcode[dat$test_grade == 2] <- "ELP02"
+dat$testcode[dat$test_grade == 3] <- "ELP03"
+dat$testcode[dat$test_grade == 4] <- "ELP04"
+dat$testcode[dat$test_grade == 6] <- "ELP06"
+dat$testcode[dat$test_grade == 9] <- "ELP09"
+table(dat$testcode)
 
 # test language
 dat$testlang <- "E"
@@ -385,7 +398,7 @@ dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(197:261)]
+dat <- dat[c(197:263)]
 names(dat)
 
 # save student-level file
@@ -413,7 +426,7 @@ dad <- dat %>%
            "Last" = str_to_title(last),
            "First" = str_to_title(first),
            "MI" = str_to_upper(mi),
-           "Tested_Grade" = NA,
+           "Tested_Grade" = test_grade,
            "Tested_Grade_Listen" = test_grade_listen,
            "Tested_Grade_Read" = test_grade_read,
            "Tested_Grade_Speak" = test_grade_speak,
@@ -426,9 +439,9 @@ dad <- dat %>%
            "CBT_Read" = cbt_read,
            "CBT_Speak" = cbt_speak,
            "CBT_Write" = cbt_write,
-           "Testname" = "ACCESS",
-           "Subtest" = "ELP",
-           "TestCode" = "ELP",
+           "Testname" = testname,
+           "Subtest" = subtest,
+           "TestCode" = testcode,
            "TestLang" = testlang,
            "PL" = PL_composite,
            "PL_Listen" = PL_listen,
@@ -450,7 +463,7 @@ dad <- dat %>%
            "SS_Literacy" = SS_literacy,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(66:112)
+    select(68:114)
 
 names(dad)
 str(dad)
