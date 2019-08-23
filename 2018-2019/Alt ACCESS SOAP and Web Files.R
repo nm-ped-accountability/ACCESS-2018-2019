@@ -253,6 +253,7 @@ dat$accommodation[is.na(dat$accommodation)] <- "N"
 table(dat$accommodation)
 
 # mode
+dat$cbt <- "N"
 dat$cbt_listen <- "N"
 dat$cbt_read <- "N"
 dat$cbt_speak <- "N"
@@ -414,7 +415,7 @@ dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(214:279)]
+dat <- dat[c(214:280)]
 names(dat)
 
 # save student-level file
@@ -480,7 +481,7 @@ dad <- dat %>%
            "SS_Literacy" = SS_literacy,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(67:113)
+    select(68:114)
 # the PL_integer variable is not here but is in the ACCESs file
 # so the ACCESs file has one more variable
 
