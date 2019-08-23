@@ -452,7 +452,7 @@ dad <- dat %>%
            "STARS_Grade" = STARS_grade,
            "Pref_Grade" = NA,
            "Accomm" = accommodation,
-           "CBT" = NA,
+           "CBT" = cbt,
            "CBT_Listen" = cbt_listen,
            "CBT_Read" = cbt_read,
            "CBT_Speak" = cbt_speak,
