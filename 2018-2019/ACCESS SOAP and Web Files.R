@@ -209,7 +209,11 @@ dat$accommodation[dat$WD...Accommodation == "Y"] <- "Y" #word processor
 dat$accommodation[is.na(dat$accommodation)] <- "N"
 table(dat$accommodation)
 
-# mode
+# cbt / mode
+dat$cbt[dat$Reported.Mode == "Mixed"] <- "M"
+dat$cbt[dat$Reported.Mode == "Online"] <- "Y"
+dat$cbt[dat$Reported.Mode == "Paper"] <- "N"
+
 dat$Mode.of.Administration...Listening <- str_trim(dat$Mode.of.Administration...Listening)
 table(dat$Mode.of.Administration...Listening)
 dat$cbt_listen[dat$Mode.of.Administration...Listening == "Online"] <- "Y"
@@ -398,7 +402,7 @@ dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(197:263)]
+dat <- dat[c(197:264)]
 names(dat)
 
 # save student-level file
@@ -463,7 +467,7 @@ dad <- dat %>%
            "SS_Literacy" = SS_literacy,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(68:114)
+    select(69:115)
 
 names(dad)
 str(dad)
