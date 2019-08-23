@@ -286,7 +286,7 @@ range(dat$PL_integer, na.rm = TRUE)
 
 # proficient
 dat$proficient[dat$PL_composite >= 5.0] <- 1
-dat$proficient[is.na(dat$proficient)] <- 0
+dat$proficient[dat$PL_composite < 5.0] <- 0
 table(dat$proficient)
 
 # valid
