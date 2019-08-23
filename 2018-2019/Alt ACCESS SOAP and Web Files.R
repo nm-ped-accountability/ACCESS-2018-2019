@@ -300,7 +300,9 @@ table(dat$PL_composite)
 
 # proficient
 dat$proficient[dat$PL_composite == "P1" | dat$PL_composite == "P2"] <- 1
-dat$proficient[is.na(dat$proficient)] <- 0
+dat$proficient[dat$PL_composite == "A1" | 
+                   dat$PL_composite == "A2" | 
+                   dat$PL_composite == "A3"] <- 0
 table(dat$proficient)
 
 # valid
