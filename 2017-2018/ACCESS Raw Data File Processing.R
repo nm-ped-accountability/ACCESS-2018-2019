@@ -85,6 +85,7 @@ str(dat$dob)
 nrow(dat[is.na(dat$dob), ]) #2 missing values
 
 # test_grade
+dat$grade <- dat$Grade
 dat$test_grade_listen <- dat$Cluster...Listening
 table(dat$test_grade_listen)
 dat$test_grade_read <- dat$Cluster...Reading
@@ -337,7 +338,7 @@ dat$missing_domains[dat$missing_write == 1 & dat$valid_write == 2]
 # 2019: 4 cases had SPD
 
 # remove extra columns
-dat <- dat[c(163:217)]
+dat <- dat[c(163:218)]
 names(dat)
 
 # save student-level file
